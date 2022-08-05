@@ -1822,6 +1822,26 @@ Result:
 Evaluate external model.
 Accepts a model name and model arguments. Returns Float64.
 
+## catboostEvaluate(path_to_model, …)
+
+Evaluate catboost model.
+Accepts a path to a catboost model and model arguments (features). Returns Float64.
+
+**Example**
+
+Required `catboost_lib_path` section in the server configuration file:
+
+``` xml
+<catboost_lib_path>/path/to/libcatboostmodel.so</catboost_lib_path>
+```
+
+Query:
+
+``` sql
+SELECT FEAT1, ..., FEAT_N, catboostEvaluate('/path/to/model.bin', FEAT_1, ..., FEAT_N) AS prediction
+FROM data_table
+```
+
 ## throwIf(x\[, custom_message\])
 
 Throw an exception if the argument is non zero.
