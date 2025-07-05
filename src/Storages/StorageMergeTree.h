@@ -22,6 +22,9 @@
 namespace DB
 {
 
+class PreparedSetsCache;
+using PreparedSetsCachePtr = std::shared_ptr<PreparedSetsCache>;
+
 /** See the description of the data structure in MergeTreeData.
   */
 class StorageMergeTree final : public MergeTreeData
@@ -315,16 +318,15 @@ private:
 
     struct MutationsSnapshot : public MutationsSnapshotBase
     {
-        MutationsSnapshot() = default;
-        MutationsSnapshot(Params params_, MutationCounters counters_) : MutationsSnapshotBase(std::move(params_), std::move(counters_)) {}
-
         using MutationsByVersion = std::map<UInt64, std::shared_ptr<const MutationCommands>>;
         MutationsByVersion mutations_by_version;
 
-        MutationCommands getAlterMutationCommandsForPart(const MergeTreeData::DataPartPtr & part) const override;
+        MutationsSnapshot() = default;
+        MutationsSnapshot(Params params_, MutationCounters counters_, MutationsByVersion mutations_snapshot);
+
+        MutationCommands getOnFlyMutationCommandsForPart(const MergeTreeData::DataPartPtr & part) const override;
         std::shared_ptr<MergeTreeData::IMutationsSnapshot> cloneEmpty() const override { return std::make_shared<MutationsSnapshot>(); }
         NameSet getAllUpdatedColumns() const override;
-        bool hasMetadataMutations() const override { return counters.num_metadata > 0; }
     };
 
     class PartMutationBackoffPolicy
